@@ -1,0 +1,54 @@
+import solara
+from components.buttons import CellLineButton
+from components.form import PredictForm
+import json
+
+with open('models/genes_t1.json', 'r') as file:
+    input_label = solara.reactive(json.loads(file.read()))
+
+input_value = solara.reactive([0 for _ in range(len(input_label.value))])
+x = "Gene"
+output_value = solara.reactive('')
+disable = solara.reactive(False)
+
+import joblib
+model = joblib.load('models/table_1.joblib')
+encoder = joblib.load('models/y_1.joblib')
+import pandas as pd
+
+def predict_output():
+    disable.value = True
+    output_value.value = ''
+    df = pd.DataFrame()
+    for i in range(len(input_label.value)):
+        df = pd.concat([df, pd.DataFrame({input_label.value[i]: [input_value.value[i], ]})], axis=1)
+    output_value.value = encoder.inverse_transform(model.predict(df))[0]
+    disable.value = False
+
+import random
+
+max_value = solara.reactive(13.9602948479548)
+min_value = solara.reactive(2.09425127453073)
+close_zero_count = solara.reactive(257)
+zero_max_value = solara.reactive(2.7)
+generating_random = solara.reactive(False)
+
+def fill_random_values():
+    generating_random.value = True
+    pos = [random.randrange(0, len(input_label.value)) for _ in range(close_zero_count.value)]
+    input_value.value = [random.uniform(min_value.value, max_value.value) if i not in pos else random.uniform(-9.846829, zero_max_value.value) for i in range(len(input_label.value))]
+    generating_random.value = False
+    
+@solara.component
+def GeneExpression():
+    CellLineButton()
+    solara.Text("Gene Expression (Gaussian Naive Bayes)", style='margin-top:1rem;font-size:1.2rem;')
+    solara.Text('Prediction: {}'.format(output_value.value), style='padding-top:1rem')
+    with solara.Div(style='text-align: center;display: flex;justify-content: space-between; align-items: center'):
+        solara.Button("Generating" if generating_random.value else 'Random', on_click=fill_random_values, color='indigo', style='color:white; width:7rem', disabled=generating_random.value)
+        with solara.Div(style='text-align: center;display: flex;gap: 3rem; align-items: center'):
+            solara.InputInt("Close to zero ({} max)".format(len(input_label.value)), value=close_zero_count)
+            solara.InputFloat("Close to zero upper limit".format(len(input_label.value)), value=zero_max_value)
+            solara.InputFloat("Min", value=min_value)
+            solara.InputFloat("Max", value=max_value)
+    PredictForm(input_value, input_label, predict_output, x, disable)
