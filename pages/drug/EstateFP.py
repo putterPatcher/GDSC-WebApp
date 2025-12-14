@@ -27,7 +27,7 @@ def predict_output():
 
 import random
 
-zero_value = solara.reactive(82)
+zero_value = solara.reactive(6)
 
 def fill_random_values():
     disable_random.value = True

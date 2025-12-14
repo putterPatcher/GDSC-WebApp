@@ -3,7 +3,7 @@ from components.buttons import DrugButton
 from components.form_binary import PredictForm
 import json
 
-with open('models/x_t9_MACCSFP.json', 'r') as file:
+with open('models/x_t9_EstateFP.json', 'r') as file:
     input_label = solara.reactive(json.loads(file.read()))
 input_value = solara.reactive([0 for _ in range(len(input_label.value))])
 x = "Features"
@@ -12,8 +12,8 @@ disable = solara.reactive(False)
 disable_random = solara.reactive(False)
 
 import joblib
-model = joblib.load('models/table_9_MACCSFP.joblib')
-encoder = joblib.load('models/y_9_MACCSFP.joblib')
+model = joblib.load('models/table_9_EstateFP.joblib')
+encoder = joblib.load('models/y_9_EstateFP.joblib')
 import pandas as pd
 
 def predict_output():
@@ -27,7 +27,7 @@ def predict_output():
 
 import random
 
-zero_value = solara.reactive(36)
+zero_value = solara.reactive(82)
 
 def fill_random_values():
     disable_random.value = True
@@ -36,9 +36,9 @@ def fill_random_values():
     disable_random.value = False
 
 @solara.component
-def MACCSFP():
+def EstateFP():
     DrugButton()
-    solara.Text("MACCSFP (Bernoulli Naive Bayes)", style='margin-top:1rem;font-size:1.2rem;')
+    solara.Text("EstateFP (Bernoulli Naive Bayes)", style='margin-top:1rem;font-size:1.2rem;')
     solara.Text('Prediction: {}'.format(output_value.value), style='padding-top:1rem')
     with solara.Div(style='text-align: center;display: flex;justify-content: space-between; align-items: center'):
         solara.Button('Random', on_click=fill_random_values, color='indigo', style='color:white; width:7rem', disabled=disable_random.value)
