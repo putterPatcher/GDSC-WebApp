@@ -5,7 +5,7 @@ import json
 
 with open('models/x_t9_EstateFP.json', 'r') as file:
     input_label = solara.reactive(json.loads(file.read()))
-input_value = solara.reactive([0 for _ in range(len(input_label.value))])
+input_value = solara.reactive([solara.reactive(0) for _ in range(len(input_label.value))])
 x = "Features"
 output_value = solara.reactive('')
 disable = solara.reactive(False)
@@ -21,19 +21,23 @@ def predict_output():
     output_value.value = ''
     df = pd.DataFrame()
     for i in range(len(input_label.value)):
-        df = pd.concat([df, pd.DataFrame({input_label.value[i]: [input_value.value[i], ]})], axis=1)
+        df = pd.concat([df, pd.DataFrame({input_label.value[i]: [input_value.value[i].value, ]})], axis=1)
     output_value.value = encoder.inverse_transform(model.predict(df))[0]
     disable.value = False
 
 import random
 
-zero_value = solara.reactive(6)
-
 def fill_random_values():
     disable_random.value = True
     pos = [random.randrange(0, len(input_label.value)) for _ in range(zero_value.value)]
-    input_value.value = [random.randint(0,1) if i not in pos else 0 for i in range(len(input_label.value))]
+    for i in range(len(input_label.value)):
+        if i not in pos:    
+            input_value.value[i].value = random.randint(0, 1)
+        else:
+            input_value.value[i].value = 0
     disable_random.value = False
+
+zero_value = solara.reactive(6)
 
 @solara.component
 def EstateFP():
