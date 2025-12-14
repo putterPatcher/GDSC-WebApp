@@ -24,8 +24,8 @@ def first_components():
 
 @solara.component
 def PredictForm(input_Value, input_Label, generate_output, x, disable=solara.reactive(False)):
-    input_label.value = input_Label.value
     input_value.value = input_Value.value
+    input_label.value = input_Label.value
     disable_value.value = disable.value
     with solara.Row(justify='center'):
         solara.Button("Predict", on_click=generate_output, style='color:white;background-color:black;width:15rem;', disabled=disable_value.value)
