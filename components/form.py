@@ -5,7 +5,7 @@ input_label = solara.reactive([])
 curr_rendered = solara.reactive(0)
 max_rendered = solara.reactive(50)
 prev_components = solara.reactive([])
-disable_value = solara.reactive(False)
+disable_value = solara.reactive(solara.reactive(False))
 load_first = solara.reactive(True)
 first_components_list = solara.reactive([])
 prev_label_id = solara.reactive(None)
@@ -46,16 +46,16 @@ def PredictForm(input_Value, input_Label, generate_output, x, disable=solara.rea
         input_label.value = []
         curr_rendered.value = 0
         prev_components.value = []
-        disable_value.value = False
+        disable_value.value = solara.reactive(False)
         load_first.value = True
         first_components_list.value = []
     if load_first.value:
         input_value.value, input_label.value = input_Value, input_Label
-        disable_value.value = disable.value
+        disable_value.value = disable
         first_components_list.value = first_components()
         load_first.value = False
     with solara.Row(justify='center'):
-        solara.Button("Predict", on_click=generate_output, style='color:white;background-color:black;width:15rem;', disabled=disable_value.value)
+        solara.Button("Predict", on_click=generate_output, style='color:white;background-color:black;width:15rem;', disabled=disable_value.value.value)
     solara.Text(x)
     solara.Column(children=first_components_list.value)
     solara.Column(children=prev_components.value)
