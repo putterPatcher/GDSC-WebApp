@@ -6,7 +6,7 @@ import json
 with open('models/x_t2.json', 'r') as file:
     input_label = solara.reactive(json.loads(file.read()))
 
-input_value = solara.reactive([0 for _ in range(len(input_label.value))])
+input_value = solara.reactive([solara.reactive(0) for _ in range(len(input_label.value))])
 x = "Gene"
 output_value = solara.reactive('')
 disable = solara.reactive(False)
@@ -22,7 +22,7 @@ def predict_output():
     output_value.value = ''
     df = pd.DataFrame()
     for i in range(len(input_label.value)):
-        df = pd.concat([df, pd.DataFrame({input_label.value[i]: [input_value.value[i], ]})], axis=1)
+        df = pd.concat([df, pd.DataFrame({input_label.value[i]: [input_value.value[i].value, ]})], axis=1)
     output_value.value = encoder.inverse_transform(model.predict(df))[0]
     disable.value = False
 
@@ -36,7 +36,11 @@ zero_max_value = solara.reactive(0.4)
 def fill_random_values():
     disable_random.value = True
     pos = [random.randrange(0, len(input_label.value)) for _ in range(close_zero_count.value)]
-    input_value.value = [random.uniform(min_value.value, max_value.value) if i not in pos else random.uniform(0.0, zero_max_value.value) for i in range(len(input_label.value))]
+    for i in range(len(input_label.value)):
+        if i not in pos:
+            input_value.value[i].value = random.uniform(min_value.value, max_value.value)
+        else:
+            input_value.value[i].value = random.uniform(0.006, zero_max_value.value)
     disable_random.value = False
 
 @solara.component

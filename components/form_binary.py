@@ -3,18 +3,20 @@ import solara
 input_value = solara.reactive([])
 input_label = solara.reactive([])
 curr_rendered = solara.reactive(0)
-max_rendered = solara.reactive(300)
+max_rendered = solara.reactive(50)
 prev_components = solara.reactive([])
 disable_value = solara.reactive(False)
 load_first = solara.reactive(True)
 first_components_list = solara.reactive([])
+prev_label_id = solara.reactive(None)
+prev_input_id = solara.reactive(None)
 # load_more = solara.reactive(False)
 
 # def components():
 #     load_more.value = not load_more.value
 
 def add_components():
-    end = 300 if len(input_value.value.value) - curr_rendered.value > 300 else len(input_value.value.value) - curr_rendered.value
+    end = 50 if len(input_value.value.value) - curr_rendered.value > 50 else len(input_value.value.value) - curr_rendered.value
     if end != 0:
         prev_components.value += [solara.InputInt(input_label.value.value[i+curr_rendered.value], value=input_value.value.value[i+curr_rendered.value], continuous_update=True) for i in range(0, end)]
         curr_rendered.set(curr_rendered.value+end)
@@ -37,9 +39,19 @@ def first_components():
 
 @solara.component
 def PredictForm(input_Value, input_Label, generate_output, x, disable=solara.reactive(False)):
-    input_value.value, input_label.value = input_Value, input_Label
-    disable_value.value = disable.value
+    if id(input_Label) != prev_label_id.value or id(input_Value) != prev_input_id.value:
+        prev_label_id.value = id(input_Label)
+        prev_input_id.value = id(input_Value)
+        input_value.value = []
+        input_label.value = []
+        curr_rendered.value = 0
+        prev_components.value = []
+        disable_value.value = False
+        load_first.value = True
+        first_components_list.value = []
     if load_first.value:
+        input_value.value, input_label.value = input_Value, input_Label
+        disable_value.value = disable.value
         first_components_list.value = first_components()
         load_first.value = False
     with solara.Row(justify='center'):
